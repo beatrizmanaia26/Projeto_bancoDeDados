@@ -9,7 +9,7 @@ Projeto realizado em dupla com @laaurap na matéria de banco de dados
 
 ## DDL usado para a criação das tabelas necessárias:
 
-```sql    create table curso
+```sql     create table curso
 	(id_curso	serial not null, 
 	nome_curso	text, 
 	primary key (id_curso)
@@ -67,7 +67,7 @@ create table materias_lecionadas_por_professor
    ano int,
    codigo_materia text,
    id_professor serial not null,
-   primary key (codigo_materia),
+  references materias (codigo_materia),
   foreign key (id_professor) references professor (id_professor)
   );
 
@@ -87,5 +87,6 @@ create table historico_aluno
    foreign key (ra) references alunos (ra),
    foreign key (codigo_materia) references materias (codigo_materia)
   );
+
 
 ```
