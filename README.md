@@ -9,7 +9,9 @@ Projeto realizado em dupla com @laaurap na matéria de banco de dados
 
 ## DDL usado para a criação das tabelas necessárias:
 
-```sql     create table curso
+```sql    
+
+  create table curso
 	(id_curso	serial not null, 
 	nome_curso	text, 
 	primary key (id_curso)
@@ -26,6 +28,7 @@ Projeto realizado em dupla com @laaurap na matéria de banco de dados
 	(id_tcc serial not null, 
 	titulo text,
   id_professor serial not null,
+  nota float,
 	primary key (id_tcc),
   foreign key (id_professor) references professor (id_professor)
 	);
