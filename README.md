@@ -70,7 +70,7 @@ create table materias_lecionadas_por_professor
    ano int,
    codigo_materia text,
    id_professor serial not null,
-  references materias (codigo_materia),
+  foreign key (codigo_materia) references materias (codigo_materia),
   foreign key (id_professor) references professor (id_professor)
   );
 
@@ -90,6 +90,5 @@ create table historico_aluno
    foreign key (ra) references alunos (ra),
    foreign key (codigo_materia) references materias (codigo_materia)
   );
-
 
 ```
