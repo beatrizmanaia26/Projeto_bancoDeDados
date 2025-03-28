@@ -5,7 +5,7 @@ Projeto realizado em dupla com @laaurap na matéria de banco de dados
 ![codigo1](./imagens/MER.png)
 
 ## Modelo Relacional na 3FN:
-![codigo1](./imagens/MR3FN.png)
+![codigo1](./imagens/MR-3FN.png)
 
 ## DDL usado para a criação das tabelas necessárias:
 
