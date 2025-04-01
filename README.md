@@ -22,9 +22,8 @@ Integrantes:
 ## DDL usado para a criação das tabelas necessárias:
 
 ```sql    
-
-  create table curso
-	(id_curso	serial not null, 
+create table curso
+	(id_curso	text, 
 	nome_curso	text, 
 	primary key (id_curso)
 	);
@@ -48,7 +47,7 @@ Integrantes:
 create table alunos
 	(ra		text,
 	 nome		text,
-   id_curso	serial not null, --coluna tem q existir p chave estrangeira aponta
+   id_curso text, --coluna tem q existir p chave estrangeira aponta
    id_tcc	serial not null,
 	 primary key (ra),
    foreign key (id_curso) references curso (id_curso),
@@ -67,7 +66,7 @@ create table materias
 create table departamento 
   (nome text,
    id_departamento serial not null,
-   id_curso	serial not null, 
+   id_curso text, 
    codigo_materia text,
    id_professor serial not null,
    primary key(id_departamento),
@@ -89,7 +88,7 @@ create table materias_lecionadas_por_professor
 create table matriz_curricular_curso
   (semestre int,
    codigo_materia text,
-   id_curso	serial not null,
+   id_curso	text,
    foreign key (codigo_materia) references materias (codigo_materia),
    foreign key (id_curso) references curso (id_curso)
   );
