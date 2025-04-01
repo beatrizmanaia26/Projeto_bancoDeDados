@@ -8,7 +8,9 @@ Integrantes:
 
 # Como executar o projeto:
 -abre o supabase (https://supabase.com/)e em "SQL Editor" coloque a DDL abaixo, emseguida clique em "run"
+
 -no replit rode o código commitado nesse projeto para inserir os dados na tabela
+
 -execute as queries abaixo para verificar o funcionamento do projeto
 
 ##  Modelo Entidade Relacionamento:
