@@ -1,16 +1,17 @@
 from faker import Faker
 import random
+from datetime import datetime
 from supabase import create_client, Client
 
 #config do supabase
 #laura
-#supabase_url = 'https://bgaldydhkrrtwxiivwtr.supabase.co'
-#supabase_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnYWxkeWRoa3JydHd4aWl2d3RyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODcwOTMxNywiZXhwIjoyMDU0Mjg1MzE3fQ.wSJss4EPy3w8jBmBUPBiNovEK3xQuoZmdZV5JOsvK4U'
+supabase_url = 'https://bgaldydhkrrtwxiivwtr.supabase.co'
+supabase_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnYWxkeWRoa3JydHd4aWl2d3RyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODcwOTMxNywiZXhwIjoyMDU0Mjg1MzE3fQ.wSJss4EPy3w8jBmBUPBiNovEK3xQuoZmdZV5JOsvK4U'
 
 #bia
 
-supabase_url = 'https://ubvcklbdyepjvjologao.supabase.co'
-supabase_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVidmNrbGJkeWVwanZqb2xvZ2FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg3MDkzMDksImV4cCI6MjA1NDI4NTMwOX0.lp9adnmkgPspF5RVgjsSmAJQvZs-tkAeE3ke8vdadnU'
+#supabase_url = 'https://ubvcklbdyepjvjologao.supabase.co'
+#supabase_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVidmNrbGJkeWVwanZqb2xvZ2FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg3MDkzMDksImV4cCI6MjA1NDI4NTMwOX0.lp9adnmkgPspF5RVgjsSmAJQvZs-tkAeE3ke8vdadnU'
 
 supabase: Client = create_client(supabase_url, supabase_key)
 
@@ -29,30 +30,36 @@ id_cursos = [
     "ER455310", "EE13463", "EQ87455", "AD94221"
 ]
 
-#Antes de adicionar, ver o array pra saber o que ja ta no supabase, se o nome do curso novo ja existir na lista nao adiciona novamente!!!!!!!!!!!!!!!!!!!!!!!!!
-
 #adicionar cursos no supabase
 contador = 0
-for curso in cursos: 
+for curso in cursos:
     try:
-        data, count = supabase.table('curso').insert({
-            'nome_curso':
-            curso,
-            'id_curso':
-            id_cursos[cursos.index(curso)]
-        }).execute()
-        print(f"Curso {curso} com id {id_cursos} adicionado com sucesso!")
-        
+        # Verificar se o curso já existe no Supabase
+        response = supabase.table('curso').select("id_curso").eq(
+            'nome_curso', curso).execute()
+        # Se não encontrar o curso, adiciona
+        if len(response.data) == 0:
+            data = {
+                'nome_curso': curso,
+                'id_curso': id_cursos[cursos.index(curso)]
+            }
+            supabase.table('curso').insert(data).execute()
+
+            print(
+                f"Curso {curso} com id {data['id_curso']} adicionado com sucesso!"
+            )
+            contador += 1
+        else:
+            print(f"Curso {curso} já existe no banco de dados.")
+
     except Exception as e:
         print(f"Erro ao adicionar curso {curso}: {e}")
 
-#GERAR PROFESSORES
-
-#Antes de adicionar, ver o array pra saber o que ja ta no supabase, se o id aleatorio novo ja estiver na lista, nao insere, se nao estiver, adiciona na listas!!!!!!!!!!!!!!!!!!!!!!!
-
+#PROFESSORES
 professores = []
 
-for j in range(20):
+#adicionar professores no supabase
+for j in range(10):
     nome_professor = faker.name()  #gera nome aleatório
     id_professor = faker.unique.random_int(min=100000000, max=999999999)
 
@@ -61,19 +68,29 @@ for j in range(20):
         "nome_professor": nome_professor
     })
 
+contadorProf = 0
+
 for professor in professores:
     try:
-        data, count = supabase.table('professor').insert(professor).execute()
-        print(
-            f"Professor inserido: {professor['nome_professor']} (id: {professor['id_professor']})"
-        )
+        response = supabase.table('professor').select("id_professor").eq(
+            'id_professor', professor["id_professor"]).execute()
+
+        if len(response.data) == 0:  # Se não encontrar o id, adiciona
+            supabase.table('professor').insert(professor).execute()
+            print(
+                f"Professor {professor['nome_professor']} com id {professor['id_professor']} adicionado com sucesso!"
+            )
+            contadorProf += 1
+        else:
+            print(
+                f"Professor {professor['id_professor']} já existe no banco de dados."
+            )
     except Exception as e:
-        print(f"Erro ao inserir professor {professor['nome_professor']}: {e}")
+        print(f"Erro ao adicionar professor {professor['id_professor']}: {e}")
 
-print("processo finalizado!")
+print(f"Total de novos professores adicionados: {contadorProf}")
 
-#tcc
-# Gerar frases aleatórias (titulo tcc)
+#TCC
 titulosDeTcc = []
 #percorrer a lista de professores que guarda "id_professor": id_professor e "nome_professor": nome_professor e iterar entre os id dos professores para inserir aleatoriamente os ids dos professores "id_professor" dentro da tabela "tcc"
 
@@ -87,39 +104,46 @@ for id_professor in professores:
         "nota": random.randint(0, 10)
     })
 
+#inserir tcc no supabase
 for titulo in titulosDeTcc:
     try:
         tcc_data = supabase.table('tcc').insert(titulo).execute()
-        tcc_ids = [item['id'] for item in tcc_data.data]
-        tcc_notas = [item['nota'] for item in tcc_data.data]
+        # tcc_ids = [item['id'] for item in tcc_data.data]
+        #print("tcc_ids", tcc_ids)
+        #tcc_notas = [item['nota'] for item in tcc_data.data]
         print(
-            f"Título de TCC inserido: {titulo['titulo']} (id: {titulo['id_professor']})"
+            f"Título de TCC inserido: {titulo['titulo']} (id: #{titulo['id_professor']})"
         )
     except Exception as e:
         print(
             f"Erro ao inserir título de TCC para o professor {titulo['id_professor']}: {e}"
         )
-        tcc_ids = []
+        print("Exception", e)
 
 #print("processo finalizado!")
 
-#GERAR ALUNOS(100)
+#GERAR ALUNOS
+
+# Buscar todos os TCCs e extrair os IDs
+tcc_result = supabase.table('tcc').select('id_tcc').execute()
+tcc_ids = [tcc['id_tcc'] for tcc in tcc_result.data]
+
 alunos = []
 
-for i in range(100):  #gerar 100 alunos
+for i in range(10):
     nome = faker.name()  # Gera um nome fictício
     ra = faker.unique.random_int(min=100000000,
                                  max=999999999)  # Gera um RA único
-    #hora_complementar = random.randint(0,#200)  #horas complementares de 0 a 200
-    id_curso = random.randint(1, 10)
-    # id_tcc = random.choice(
-    #  tcc_ids) if tcc_ids and random.random() < 0.7 else None
+    id_curso = id_cursos[random.randint(0, len(id_cursos) - 1)]
+    # 70% de chance de ter um id_tcc, 30% de chance de ser None
+    id_tcc = random.choice(
+        tcc_ids) if tcc_ids and random.random() < 0.7 else None
 
     alunos.append({
         "nome": nome,
         "ra": ra,
         "id_curso": id_curso,
-        # "id_tcc": id_tcc
+        "id_tcc": id_tcc
     })
 
 # Inserir dados na tabela 'alunos' do Supabase
@@ -135,15 +159,7 @@ for aluno in alunos:
 
 print("Processo concluído!")
 
-#horas complementares por curso   *****************************
-#10 semestres total 200 horas, cada semestre a pessoa pode conseguir no maximo 20 horas,para todos os cursos************************
-
-#MATERIA
-
-#nome da materia
-
-#MATERIA
-#nome da materia
+#MATERIAS
 materias = [
     "Banco de dados", "Digital Experience", "Fundamentos de algoritmos",
     "Programação Fullstack", "Sociologia", "Modelagem matemática",
@@ -172,66 +188,82 @@ materias = [
     "Mecânica geral", "Topografia", "Economia"
 ]
 
-# Buscar professores existentes no Supabase
+# Buscar professores existentes
 professores = supabase.table('professor').select('id_professor').execute()
 professores_ids = [prof['id_professor'] for prof in professores.data]
-
-# Criar lista de matérias a serem inseridas
-materias_para_inserir = []
-
-for i in range(100):
-    codigo_materia = f"MAT-{i+1:03d}"  # Gera códigos como MAT-001, MAT-002...
-    nome_materia = random.choice(materias)  # Escolhe uma matéria da lista
-    id_professor = random.choice(
-        professores_ids
-    ) if professores_ids else None  # Escolhe um professor existente
-
-    materias_para_inserir.append({
-        "codigo_materia": codigo_materia,
-        "nome_materia": nome_materia,
-        "id_professor": id_professor
-    })
-
-# Inserindo no banco
-for materia in materias_para_inserir:
+contador = 0
+for materia in materias:
     try:
-        supabase.table('materias').insert(materia).execute()
-        print(f"Matéria {materia['nome_materia']} adicionada com sucesso!")
+        codigo_materia = f"MAT-{contador+1:03d}"  # Ex: MAT-001, MAT-002...
+        id_professor = random.choice(
+            professores_ids) if professores_ids else None
+
+        # Verificar se já existe matéria com mesmo nome
+        response = supabase.table('materias').select("codigo_materia").eq(
+            'nome_materia', materia).execute()
+
+        if len(response.data) == 0:
+            data = {
+                'nome_materia': materia,
+                'codigo_materia': codigo_materia,
+                'id_professor': id_professor
+            }
+            supabase.table('materias').insert(data).execute()
+
+            print(
+                f"Materia '{materia}' com código {data['codigo_materia']} adicionada com sucesso!"
+            )
+            contador += 1
+        else:
+            print(f"Matéria '{materia}' já existe no banco de dados.")
+
     except Exception as e:
-        print(f"Erro ao adicionar matéria {materia['nome_materia']}: {e}")
+        print(f"Erro ao adicionar matéria '{materia}': {e}")
 
-print("Processo finalizado!")
-
-#DEPARTAMENTOS
+# DEPARTAMENTOS
 departamentos = [
-    "Matemática", "Ciencia da Computação", "Fisica", "Engenharia Eletrica",
+    "Matemática", "Ciência da Computação", "Física", "Engenharia Elétrica",
     "Engenharia Civil", "Engenharia de Produção", "Administração",
-    "Ciencia Social e Juridica", "Engenharia Mecanica", "Engenharia Quimica"
+    "Ciência Social e Jurídica", "Engenharia Mecânica", "Engenharia Química"
 ]
 
-# Buscar cursos e professores do banco
+# Buscar dados do banco
 cursos = supabase.table('curso').select('id_curso').execute().data
 professores = supabase.table('professor').select('id_professor').execute().data
 materias = supabase.table('materias').select('codigo_materia').execute().data
 
-# Verifica se há registros no banco
+# Verificar registros existentes
 cursos_ids = [curso["id_curso"] for curso in cursos] if cursos else []
-professores_ids = [prof["id_professor"]
-                   for prof in professores] if professores else []
-materias_codigos = [materia["codigo_materia"]
-                    for materia in materias] if materias else []
+professores_ids = [prof["id_professor"] for prof in professores] if professores else []
+materias_codigos = [materia["codigo_materia"] for materia in materias] if materias else []
+
+# Buscar nomes dos departamentos já existentes
+departamentos_ja_existentes = supabase.table('departamento').select(
+    'nome').execute().data
+nomes_departamentos_existentes = [
+    dep['nome'] for dep in departamentos_ja_existentes
+]
 
 # Lista para armazenar os departamentos a serem inseridos
 departamentos_para_inserir = []
 
-for i in range(10):
-    nome_departamento = faker.company()  # Nome fictício do departamento
-    id_curso = random.choice(
-        cursos_ids) if cursos_ids else None  # Curso existente
+# Cópia dos IDs para um professor so ser gerente de um departamento
+professores_ids_disponiveis = professores_ids.copy()
+
+for nome_departamento in departamentos:
+    # Verifica se o nome já existe no banco
+    if nome_departamento in nomes_departamentos_existentes:
+        print(f"Departamento '{nome_departamento}' já existe no banco.")
+        continue
+
+    if not professores_ids_disponiveis:
+        print("Todos os professores já foram alocados a departamentos.")
+        break 
+
+    id_professor = professores_ids_disponiveis.pop()
+    id_curso = random.choice(cursos_ids) if cursos_ids else None
     codigo_materia = random.choice(
-        materias_codigos) if materias_codigos else None  # Matéria existente
-    id_professor = random.choice(
-        professores_ids) if professores_ids else None  # Professor existente
+        materias_codigos) if materias_codigos else None
 
     if id_curso and codigo_materia and id_professor:
         departamentos_para_inserir.append({
@@ -240,7 +272,6 @@ for i in range(10):
             "codigo_materia": codigo_materia,
             "id_professor": id_professor
         })
-
 # Inserção no banco
 for departamento in departamentos_para_inserir:
     try:
