@@ -30,7 +30,7 @@ create table curso
 
  create table professor
   (nome_professor text,
-  id_professor serial not null,
+  id_professor integer,
   primary key(id_professor)
   --foreign key (id_departamento) references departamento (id_departamento)
   );
@@ -38,7 +38,7 @@ create table curso
   create table tcc
 	(id_tcc serial not null, 
 	titulo text,
-  id_professor serial not null,
+  id_professor integer,
   nota float,
 	primary key (id_tcc),
   foreign key (id_professor) references professor (id_professor)
@@ -58,7 +58,7 @@ create table alunos
 create table materias
   (nome_materia text,
    codigo_materia text,
-   id_professor serial not null,
+   id_professor integer,
    primary key (codigo_materia),
   foreign key (id_professor) references professor (id_professor)
   );
@@ -68,7 +68,7 @@ create table departamento
    id_departamento serial not null,
    id_curso text, 
    codigo_materia text,
-   id_professor serial not null,
+   id_professor integer,
    primary key(id_departamento),
    foreign key (id_curso) references curso (id_curso),
    foreign key (codigo_materia) references materias (codigo_materia),
@@ -80,7 +80,7 @@ create table materias_lecionadas_por_professor
    semestre int,
    ano int,
    codigo_materia text,
-   id_professor serial not null,
+   id_professor integer,
   foreign key (codigo_materia) references materias (codigo_materia),
   foreign key (id_professor) references professor (id_professor)
   );
