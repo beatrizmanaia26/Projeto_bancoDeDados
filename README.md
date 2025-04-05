@@ -21,7 +21,7 @@ Integrantes:
 
 ## DDL usado para a criação das tabelas necessárias:
 
-```sql    
+```sql  
 create table curso
 	(id_curso	text, 
 	nome_curso	text, 
@@ -48,7 +48,7 @@ create table alunos
 	(ra		text,
 	 nome		text,
    id_curso text, --coluna tem q existir p chave estrangeira aponta
-   id_tcc	serial not null,
+   id_tcc	integer,
 	 primary key (ra),
    foreign key (id_curso) references curso (id_curso),
    foreign key (id_tcc) references tcc (id_tcc)
@@ -101,5 +101,6 @@ create table historico_aluno
    foreign key (ra) references alunos (ra),
    foreign key (codigo_materia) references materias (codigo_materia)
   );
+
 
 ```
