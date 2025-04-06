@@ -32,7 +32,7 @@ create table curso
   (nome_professor text,
   id_professor integer,
   primary key(id_professor)
-  --foreign key (id_departamento) references departamento (id_departamento)
+  foreign key (id_departamento) references departamento (id_departamento)
   );
 
   create table tcc
