@@ -9,7 +9,9 @@ Integrantes:
 # Como executar o projeto:
 -abre o supabase (https://supabase.com/)e em "SQL Editor" coloque a DDL abaixo, emseguida clique em "run"
 
--no replit coloque o código commitado nesse projeto para inserir os dados na tabela, antes de rodar, coloque sua supabaseUrl e supabaseKey
+-após rodar a primeira DDL, no supabase, vá em "Table editor" e remova a tabela de professro", volte para "SQL editor" e rode a segunda que está logo abxio para fazer o relacionamento de id departamento na tabela professor 
+
+-no replit coloque o código commitado nesse projeto para inserir os dados na tabela, antes de rodar, coloque sua supabaseUrl e supabaseKey no código 
 
 -execute as queries abaixo para verificar o funcionamento do projeto
 
@@ -21,7 +23,7 @@ Integrantes:
 
 ## DDL usado para a criação das tabelas necessárias:
 
-```sql  
+```sql
 create table curso
 	(id_curso	text, 
 	nome_curso	text, 
@@ -31,8 +33,9 @@ create table curso
  create table professor
   (nome_professor text,
   id_professor integer,
+ -- id_departamento serial not null,
   primary key(id_professor)
-  foreign key (id_departamento) references departamento (id_departamento)
+  --foreign key (id_departamento) references departamento (id_departamento)
   );
 
   create table tcc
@@ -54,7 +57,6 @@ create table alunos
    foreign key (id_tcc) references tcc (id_tcc)
 	);
 
-  
 create table materias
   (nome_materia text,
    codigo_materia text,
@@ -97,10 +99,25 @@ create table historico_aluno
   (nota_aluno float,
    semestre int,
    ra	text,
+   ano integer,
    codigo_materia text,
    foreign key (ra) references alunos (ra),
    foreign key (codigo_materia) references materias (codigo_materia)
   );
 
-
 ```
+
+##DDL para fazer relacionamento entra tabela "departamento" e tabela "professor"7
+
+```sql 
+ create table professor
+  (nome_professor text,
+  id_professor integer,
+ id_departamento serial not null,
+  primary key(id_professor),
+  foreign key (id_departamento) references departamento (id_departamento)
+  );
+  
+```
+
+
