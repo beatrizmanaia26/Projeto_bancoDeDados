@@ -25,6 +25,7 @@ Integrantes:
 
 ```sql
 
+
 -- Apagar todas as tabelas considerando dependências
 drop table if exists historico_aluno cascade;
 drop table if exists matriz_curricular_curso cascade;
@@ -73,9 +74,7 @@ create table alunos
 create table materias
   (nome_materia text,
    codigo_materia text,
-   id_professor integer,
-   primary key (codigo_materia),
-  foreign key (id_professor) references professor (id_professor)
+   primary key (codigo_materia)
   );
 
 create table departamento 
@@ -118,7 +117,7 @@ create table historico_aluno
    foreign key (ra) references alunos (ra),
    foreign key (codigo_materia) references materias (codigo_materia)
   );
-
+  
 ```
 
 ## DDL para fazer relacionamento entra tabela "departamento" e tabela "professor"7
