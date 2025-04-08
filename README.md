@@ -24,11 +24,23 @@ Integrantes:
 ## DDL usado para a criação das tabelas necessárias:
 
 ```sql
+-- Apaga tabelas em ordem de dependência reversa
+drop table if exists historico_aluno;
+drop table if exists matriz_curricular_curso;
+drop table if exists materias_lecionadas_por_professor;
+drop table if exists departamento;
+drop table if exists materias;
+drop table if exists alunos;
+drop table if exists tcc;
+drop table if exists professor;
+drop table if exists curso;
+
+--criar tabelas
 create table curso
-	(id_curso	text, 
-	nome_curso	text, 
-	primary key (id_curso)
-	);
+    (id_curso	text, 
+    nome_curso	text, 
+    primary key (id_curso)
+    );
 
  create table professor
   (nome_professor text,
@@ -39,23 +51,23 @@ create table curso
   );
 
   create table tcc
-	(id_tcc serial not null, 
-	titulo text,
+    (id_tcc serial not null, 
+    titulo text,
   id_professor integer,
   nota float,
-	primary key (id_tcc),
+    primary key (id_tcc),
   foreign key (id_professor) references professor (id_professor)
-	);
+    );
 
 create table alunos
-	(ra		text,
-	 nome		text,
+    (ra		text,
+     nome		text,
    id_curso text, --coluna tem q existir p chave estrangeira aponta
    id_tcc	integer,
-	 primary key (ra),
+     primary key (ra),
    foreign key (id_curso) references curso (id_curso),
    foreign key (id_tcc) references tcc (id_tcc)
-	);
+    );
 
 create table materias
   (nome_materia text,
@@ -99,8 +111,9 @@ create table historico_aluno
   (nota_aluno float,
    semestre int,
    ra	text,
-   ano integer,
+   ano integer ,
    codigo_materia text,
+   primary key(semestre, ra,ano,codigo_materia),
    foreign key (ra) references alunos (ra),
    foreign key (codigo_materia) references materias (codigo_materia)
   );
