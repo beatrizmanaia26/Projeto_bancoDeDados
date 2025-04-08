@@ -110,13 +110,7 @@ create table historico_aluno
 ##DDL para fazer relacionamento entra tabela "departamento" e tabela "professor"7
 
 ```sql 
- create table professor
-  (nome_professor text,
-  id_professor integer,
- id_departamento serial not null,
-  primary key(id_professor),
-  foreign key (id_departamento) references departamento (id_departamento)
-  );
+alter table professor add column id_departamento serial not null foreign key (id_departamento) references departamento (id_departamento)
   
 ```
 
