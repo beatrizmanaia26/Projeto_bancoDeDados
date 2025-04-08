@@ -24,16 +24,17 @@ Integrantes:
 ## DDL usado para a criação das tabelas necessárias:
 
 ```sql
--- Apaga tabelas em ordem de dependência reversa
-drop table if exists historico_aluno;
-drop table if exists matriz_curricular_curso;
-drop table if exists materias_lecionadas_por_professor;
-drop table if exists departamento;
-drop table if exists materias;
-drop table if exists alunos;
-drop table if exists tcc;
-drop table if exists professor;
-drop table if exists curso;
+
+-- Apagar todas as tabelas considerando dependências
+drop table if exists historico_aluno cascade;
+drop table if exists matriz_curricular_curso cascade;
+drop table if exists materias_lecionadas_por_professor cascade;
+drop table if exists departamento cascade;
+drop table if exists materias cascade;
+drop table if exists alunos cascade;
+drop table if exists tcc cascade;
+drop table if exists professor cascade;
+drop table if exists curso cascade;
 
 --criar tabelas
 create table curso
@@ -49,7 +50,7 @@ create table curso
   primary key(id_professor)
   --foreign key (id_departamento) references departamento (id_departamento)
   );
-
+  
   create table tcc
     (id_tcc serial not null, 
     titulo text,
@@ -120,13 +121,21 @@ create table historico_aluno
 
 ```
 
-##DDL para fazer relacionamento entra tabela "departamento" e tabela "professor"7
+## DDL para fazer relacionamento entra tabela "departamento" e tabela "professor"7
 
 ```sql 
 ALTER TABLE professor
 ADD COLUMN id_departamento INTEGER NOT NULL REFERENCES departamento(id_departamento);
 
-  
+-- Inserir o departamento com ID 0
+insert into departamento (id_departamento, nome)
+values (0, 'Departamento Default');
+
+-- inserir o professor para conseguir adicionar professor aleatorios com codigo sem impactar dependencia entre professor e departamento
+insert into professor (id_professor, nome_professor, id_departamento)
+values (0, 'Default', 0);
+
+
 ```
 
 
