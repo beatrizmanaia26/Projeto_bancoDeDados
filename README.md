@@ -144,8 +144,6 @@ values
 insert into professor (id_professor, nome_professor, id_departamento)
 values (0, 'Default', 1);
 
-
-
 ```
 
 
