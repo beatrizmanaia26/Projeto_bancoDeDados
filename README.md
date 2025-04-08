@@ -9,7 +9,7 @@ Integrantes:
 # Como executar o projeto:
 -abre o supabase (https://supabase.com/)e em "SQL Editor" coloque a DDL abaixo, emseguida clique em "run"
 
--após rodar a primeira DDL, no supabase, vá em "Table editor" e remova a tabela de professro", volte para "SQL editor" e rode a segunda que está logo abxio para fazer o relacionamento de id departamento na tabela professor 
+-após rodar a primeira DDL, no supabase, em "SQL editor" rode a segunda que está logo abxio para fazer o relacionamento de id departamento na tabela professor 
 
 -no replit coloque o código commitado nesse projeto para inserir os dados na tabela, antes de rodar, coloque sua supabaseUrl e supabaseKey no código 
 
@@ -110,7 +110,9 @@ create table historico_aluno
 ##DDL para fazer relacionamento entra tabela "departamento" e tabela "professor"7
 
 ```sql 
-alter table professor add column id_departamento serial not null foreign key (id_departamento) references departamento (id_departamento)
+ALTER TABLE professor
+ADD COLUMN id_departamento INTEGER NOT NULL REFERENCES departamento(id_departamento);
+
   
 ```
 
