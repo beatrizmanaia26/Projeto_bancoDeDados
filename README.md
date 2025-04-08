@@ -25,7 +25,6 @@ Integrantes:
 
 ```sql
 
-
 -- Apagar todas as tabelas considerando dependências
 drop table if exists historico_aluno cascade;
 drop table if exists matriz_curricular_curso cascade;
@@ -126,13 +125,25 @@ create table historico_aluno
 ALTER TABLE professor
 ADD COLUMN id_departamento INTEGER NOT NULL REFERENCES departamento(id_departamento);
 
--- Inserir o departamento com ID 0
+-- Inserir os departamentos
 insert into departamento (id_departamento, nome)
-values (0, 'Departamento Default');
+values 
+  (1, 'Matemática'),
+  (2, 'Ciência da Computação'),
+  (3, 'Física'),
+  (4, 'Engenharia Elétrica'),
+  (5, 'Engenharia Civil'),
+  (6, 'Engenharia de Produção'),
+  (7, 'Administraçãoo'),
+  (8, 'Ciência Social e Jurídica'),
+  (9, 'Engenharia Mecânica'),
+  (10, 'Engenharia Química');
+
 
 -- inserir o professor para conseguir adicionar professor aleatorios com codigo sem impactar dependencia entre professor e departamento
 insert into professor (id_professor, nome_professor, id_departamento)
-values (0, 'Default', 0);
+values (0, 'Default', 1);
+
 
 
 ```
