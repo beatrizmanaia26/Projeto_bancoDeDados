@@ -145,7 +145,7 @@ tcc_ids = [tcc['id_tcc'] for tcc in tcc_result.data]
 
 alunos = []
 
-for i in range(10):
+for i in range(30):
     nome = faker.name()  # Gera um nome fictício
     ra = faker.unique.random_int(min=100000000,
                                  max=999999999)  # Gera um RA único
@@ -314,61 +314,75 @@ for dados in materias_por_professor:
 print("Matérias lecionadas adicionadas!")
 
 #MATRIZ CURRICULAR CURSO
-#buscar dados do cursos e materias no supabase
+import random
+
+# buscar dados dos cursos e materias no supabase
 cursos = supabase.table('curso').select('id_curso').execute()
 materias = supabase.table('materias').select('codigo_materia').execute()
 
 lista_curso = [curso['id_curso'] for curso in cursos.data]
 lista_materia = [materia['codigo_materia'] for materia in materias.data]
-print("lista_materia", lista_materia)
 
-# numero de semestres por curso
+# Definir número de semestres por curso
 semestres_por_curso = {
     "CC": 10, "CD": 10, "AD": 10, "EC": 10, "EA": 10,
     "EP": 10, "EM": 10, "ER": 10, "EE": 10, "EQ": 10
 }
 
-#criando as relações entre curso e matéria
+# Definir número de matérias por semestre
+materias_por_semestre = 3
+
+# Escolher 1 matéria comum para todos os cursos
+materia_comum = random.choice(lista_materia)
+
+# Criando as relações entre curso e matéria
 matriz_curricular = []
 
 for id_curso in lista_curso:
-    #identificando o  prefixo do curso
     prefixo = id_curso[:2]
     max_semestre = semestres_por_curso.get(prefixo, 10)
 
     materias_disponiveis = list(lista_materia)
+    materias_disponiveis.remove(materia_comum)  # remove a matéria comum para evitar repetição indevida
 
-    for semestre in range(1, 11):
-        #garantir que não repitaa msm matéria no mesmo curso
-        if not materias_disponiveis:
+    for semestre in range(1, max_semestre + 1):
+        materias_semestre = []
+
+        if semestre == 1:
+            materias_semestre.append(materia_comum)  # adiciona matéria comum no 1º semestre
+            num_materias_necessarias = materias_por_semestre - 1
+        else:
+            num_materias_necessarias = materias_por_semestre
+
+        if len(materias_disponiveis) < num_materias_necessarias:
             print(f"Sem mais matérias disponíveis para o curso {id_curso}.")
             break
-        # escolhe uma matéria específica da lista 
-        materia_especifica = random.choice(materias_disponiveis)
-        materias_disponiveis.remove(materia_especifica)
 
-        #insere na tabela
-        supabase.table('materia_em_curso').insert({
-            "id_curso": id_curso,
-            "codigo_materia": materia_especifica,
-            "semestre": semestre
-        })
+        materias_selecionadas = random.sample(materias_disponiveis, num_materias_necessarias)
 
-        matriz_curricular.append({
-            "semestre": semestre,
-            "codigo_materia": materia_especifica,
-            "id_curso": id_curso
-        })
+        # remove as matérias escolhidas da lista de disponíveis
+        for materia in materias_selecionadas:
+            materias_disponiveis.remove(materia)
 
-#inserir no supabase
-for matriz in matriz_curricular:
-    try:
-        supabase.table('matriz_curricular_curso').insert(matriz).execute()
-        print(f"Dados inseridos: {matriz}")
-    except Exception as e:
-        print(f"Erro ao inserir dados da matriz curricular: {matriz}: {e}")
+        materias_semestre.extend(materias_selecionadas)
 
-print("Matriz curricular adicionada!")
+        # inserir no supabase e montar a matriz curricular
+        for codigo_materia in materias_semestre:
+            dado = {
+                "id_curso": id_curso,
+                "codigo_materia": codigo_materia,
+                "semestre": semestre
+            }
+
+            try:
+                supabase.table('matriz_curricular_curso').insert(dado).execute()
+                print(f"Dados inseridos: {dado}")
+            except Exception as e:
+                print(f"Erro ao inserir dados da matriz curricular: {dado}: {e}")
+
+            matriz_curricular.append(dado)
+
+print("Matriz curricular adicionada com sucesso!")
 
 #HISTORICO ALUNO
 
