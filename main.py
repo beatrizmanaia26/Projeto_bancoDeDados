@@ -56,22 +56,32 @@ for curso in cursos:
 #PROFESSORES
 
 professores = []
-listaValidacaoIdsDep = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+listaValidacaoIdsDep = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] #para que todos os departamentos tenham pelo menos um professor
 
-while listaValidacaoIdsDep:
+listaValidacaoIdsCursos = id_cursos.copy() #para que todos os cursos tenham pelo menos um professor
+
+while listaValidacaoIdsDep or listaValidacaoIdsCursos:
     nome_professor = faker.name()
     id_professor = faker.unique.random_int(min=100000000, max=999999999)
+    id_curso = random.choice(id_cursos)
 
-    # Garante que os primeiros ids_departamento cobrem todos da lista
-    id_departamento = random.choice(listaValidacaoIdsDep)
+    if listaValidacaoIdsDep:
+        id_departamento = random.choice(listaValidacaoIdsDep)
+        listaValidacaoIdsDep.remove(id_departamento)
+    else:
+        id_departamento = random.randint(1, 10)
 
-    # Remove da lista após uso
-    listaValidacaoIdsDep.remove(id_departamento)
+    if listaValidacaoIdsCursos:
+        id_curso = random.choice(listaValidacaoIdsCursos)
+        listaValidacaoIdsCursos.remove(id_curso)
+    else:
+        id_curso = random.choice(id_cursos)
 
     professores.append({
         "id_professor": id_professor,
         "nome_professor": nome_professor,
-        "id_departamento": id_departamento
+        "id_departamento": id_departamento,
+        "id_curso": id_curso
     })
 
 # Após garantir cobertura, pode gerar mais professores com departamentos aleatórios
@@ -79,11 +89,13 @@ for j in range(20):  # Gera mais 20 professores extras
     nome_professor = faker.name()
     id_professor = faker.unique.random_int(min=100000000, max=999999999)
     id_departamento = random.randint(1, 10)
+    id_curso = random.choice(id_cursos)
 
     professores.append({
         "id_professor": id_professor,
         "nome_professor": nome_professor,
-        "id_departamento": id_departamento
+        "id_departamento": id_departamento,
+        "id_curso": id_curso
     })
 
 contadorProf = 0
@@ -106,6 +118,36 @@ for professor in professores:
         print(f"Erro ao adicionar professor {professor['id_professor']}: {e}")
 
 print(f"Total de novos professores adicionados: {contadorProf}")
+
+
+#TABELA CURSO: ADICIONAR COORDENADOR DE CURSO (id_prof)
+
+# TABELA CURSO: ADICIONAR COORDENADOR DE CURSO (id_prof)
+for curso in cursos:
+    try:
+        # Verificar o id do curso e pegar o departamento ou curso correspondente
+        id_curso = id_cursos[cursos.index(curso)]
+
+        # Buscar todos os professores que estão associados ao curso
+        professores_do_curso = supabase.table('professor').select('id_professor').eq('id_curso', id_curso).execute()
+
+        if not professores_do_curso.data:
+            print(f"Nenhum professor encontrado para o curso {curso}.")
+            continue
+
+        # Escolher um professor aleatório do curso
+        id_professor_escolhido = random.choice(professores_do_curso.data)["id_professor"]
+
+        # Atualizar a tabela curso com o id_professor escolhido
+        supabase.table('curso').update({
+            "id_professor": id_professor_escolhido  # Atualiza o coordenador do curso
+        }).eq("id_curso", id_curso).execute()
+
+        print(f"Curso {curso} atualizado com coordenador (professor) id {id_professor_escolhido}")
+
+    except Exception as e:
+        print(f"Erro ao atualizar o curso {curso}: {e}")
+
 
 #TCC
 titulosDeTcc = []
@@ -249,7 +291,6 @@ materias_codigos = [materia["codigo_materia"] for materia in materias] if materi
 # Cópia dos IDs para um professor so ser gerente de um departamento
 
 # Atualizar os departamentos com curso, matéria e professor correspondente
-# Atualizar os departamentos com curso, matéria e professor correspondente
 for id_departamento in range(1, 11):
     try:
         id_curso_aleatorio = random.choice(cursos_ids)
@@ -262,7 +303,7 @@ for id_departamento in range(1, 11):
         professores_validos = [p for p in professores_do_departamento if p != 0]
 
         if not professores_validos:
-            print(f"Nenhum professor válido encontrado para o departamento {id_departamento}, pulando...")
+            print(f"Nenhum professor válido encontrado para o departamento {id_departamento}")
             continue
 
         id_professor_escolhido = random.choice(professores_validos)
