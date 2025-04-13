@@ -122,8 +122,19 @@ create table historico_aluno
 ## DDL para fazer relacionamento entra tabela "departamento" e tabela "professor"7
 
 ```sql 
+--mudar tabelas adicionando FKs
+
+ALTER TABLE curso 
+ADD COLUMN id_professor INTEGER REFERENCES professor(id_professor);
+
 ALTER TABLE professor
-ADD COLUMN id_departamento INTEGER NOT NULL REFERENCES departamento(id_departamento);
+ADD COLUMN id_departamento INTEGER NOT NULL REFERENCES departamento(id_departamento),
+ADD COLUMN id_curso TEXT  REFERENCES curso(id_curso);
+
+-- Inserir curso
+insert into curso (id_curso, nome_curso, id_professor)
+values ('CC35473', 'Ciência da Computação', NULL);
+
 
 -- Inserir os departamentos
 insert into departamento (id_departamento, nome)
@@ -141,8 +152,8 @@ values
 
 
 -- inserir o professor para conseguir adicionar professor aleatorios com codigo sem impactar dependencia entre professor e departamento
-insert into professor (id_professor, nome_professor, id_departamento)
-values (0, 'Default', 1);
+insert into professor (id_professor, nome_professor, id_departamento, id_curso)
+values (0, 'Default', 1, 'CC35473');
 
 ```
 
