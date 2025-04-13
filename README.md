@@ -16,10 +16,10 @@ Integrantes:
 -execute as queries abaixo para verificar o funcionamento do projeto
 
 ##  Modelo Entidade Relacionamento:
-![codigo1](./imagens/MER.png)
+![codigo1](./imagens/MER.jpg)
 
 ## Modelo Relacional na 3FN:
-![codigo1](./imagens/MR-3FN.png)
+![codigo1](./imagens/MR-3FN.jpg)
 
 ## DDL usado para a criação das tabelas necessárias:
 
