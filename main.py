@@ -32,10 +32,10 @@ id_cursos = [
 contador = 0
 for curso in cursos:
     try:
-        # Verificar se o curso já existe no Supabase
+        #verificar se o curso já existe no Supabase
         response = supabase.table('curso').select("id_curso").eq(
             'nome_curso', curso).execute()  #eq é como um where no sql
-        # Se não encontrar o curso, adiciona
+        #se não encontrar o curso, adiciona
         if len(response.data) == 0:
             data = {
                 'nome_curso': curso,
@@ -56,9 +56,12 @@ for curso in cursos:
 #PROFESSORES
 
 professores = []
-listaValidacaoIdsDep = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] #para que todos os departamentos tenham pelo menos um professor
+listaValidacaoIdsDep = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+]  #para que todos os departamentos tenham pelo menos um professor
 
-listaValidacaoIdsCursos = id_cursos.copy() #para que todos os cursos tenham pelo menos um professor
+listaValidacaoIdsCursos = id_cursos.copy(
+)  #para que todos os cursos tenham pelo menos um professor
 
 while listaValidacaoIdsDep or listaValidacaoIdsCursos:
     nome_professor = faker.name()
@@ -84,8 +87,8 @@ while listaValidacaoIdsDep or listaValidacaoIdsCursos:
         "id_curso": id_curso
     })
 
-# Após garantir cobertura, pode gerar mais professores com departamentos aleatórios
-for j in range(20):  # Gera mais 20 professores extras
+#após garantir cobertura, pode gerar mais professores com departamentos aleatórios
+for j in range(20):
     nome_professor = faker.name()
     id_professor = faker.unique.random_int(min=100000000, max=999999999)
     id_departamento = random.randint(1, 10)
@@ -104,7 +107,7 @@ for professor in professores:
         response = supabase.table('professor').select("id_professor").eq(
             'id_professor', professor["id_professor"]).execute()
 
-        if len(response.data) == 0:  # Se não encontrar o id, adiciona
+        if len(response.data) == 0:  #se não encontrar o id, adiciona
             supabase.table('professor').insert(professor).execute()
             print(
                 f"Professor {professor['nome_professor']} com id {professor['id_professor']} adicionado com sucesso!"
@@ -119,35 +122,47 @@ for professor in professores:
 
 print(f"Total de novos professores adicionados: {contadorProf}")
 
-
 #TABELA CURSO: ADICIONAR COORDENADOR DE CURSO (id_prof)
 
-# TABELA CURSO: ADICIONAR COORDENADOR DE CURSO (id_prof)
 for curso in cursos:
     try:
-        # Verificar o id do curso e pegar o departamento ou curso correspondente
+        #verifica o id do curso e pegar o departamento ou curso correspondente
         id_curso = id_cursos[cursos.index(curso)]
 
-        # Buscar todos os professores que estão associados ao curso
-        professores_do_curso = supabase.table('professor').select('id_professor').eq('id_curso', id_curso).execute()
+        #busca todos os professores que estão associados ao curso
+        professores_do_curso = supabase.table('professor').select(
+            'id_professor').eq('id_curso', id_curso).execute()
 
         if not professores_do_curso.data:
             print(f"Nenhum professor encontrado para o curso {curso}.")
             continue
 
-        # Escolher um professor aleatório do curso
-        id_professor_escolhido = random.choice(professores_do_curso.data)["id_professor"]
+        #nunca colocar prof de id 0
+        professores_validos = []
+        for prof in professores_do_curso.data:
+            if prof["id_professor"] != 0:
+                professores_validos.append(prof)
 
-        # Atualizar a tabela curso com o id_professor escolhido
+        if not professores_validos:
+            print(f"Sem professor válido (id ≠ 0) para o curso {curso}.")
+            continue
+
+        #escolhe um professor aleatório do curso entre os válidos
+        id_professor_escolhido = random.choice(
+            professores_validos)["id_professor"]
+
+        #atualiza a tabela curso com o id_professor escolhido
         supabase.table('curso').update({
-            "id_professor": id_professor_escolhido  # Atualiza o coordenador do curso
+            "id_professor":
+            id_professor_escolhido  #atualiza o coordenador do curso
         }).eq("id_curso", id_curso).execute()
 
-        print(f"Curso {curso} atualizado com coordenador (professor) id {id_professor_escolhido}")
+        print(
+            f"Curso {curso} atualizado com coordenador (professor) id {id_professor_escolhido}"
+        )
 
     except Exception as e:
         print(f"Erro ao atualizar o curso {curso}: {e}")
-
 
 #TCC
 titulosDeTcc = []
@@ -167,9 +182,6 @@ for id_professor in professores:
 for titulo in titulosDeTcc:
     try:
         tcc_data = supabase.table('tcc').insert(titulo).execute()
-        # tcc_ids = [item['id'] for item in tcc_data.data]
-        #print("tcc_ids", tcc_ids)
-        #tcc_notas = [item['nota'] for item in tcc_data.data]
         print(
             f"Título de TCC inserido: {titulo['titulo']} (id: #{titulo['id_professor']})"
         )
@@ -180,21 +192,20 @@ for titulo in titulosDeTcc:
         print("Exception", e)
 
 #GERAR ALUNOS
-
-# Buscar todos os TCCs e extrair os IDs
+#busca todos os TCCs e extrair os IDs
 tcc_result = supabase.table('tcc').select('id_tcc').execute()
 tcc_ids = [tcc['id_tcc'] for tcc in tcc_result.data]
 
 alunos = []
 
 for i in range(30):
-    nome = faker.name()  # Gera um nome fictício
-    ra = faker.unique.random_int(min=100000000,
-                                 max=999999999)  # Gera um RA único
+    nome = faker.name()
+    #gera um RA único
+    ra = faker.unique.random_int(min=100000000, max=999999999)
     id_curso = id_cursos[random.randint(0, len(id_cursos) - 1)]
-    # 70% de chance de ter um id_tcc, 30% de chance de ser None
+    #80% de chance de ter um id_tcc, 20% de chance de ser None (tem gente que nao tem tcc pq nao ta pra se formar)
     id_tcc = random.choice(
-        tcc_ids) if tcc_ids and random.random() < 0.7 else None
+        tcc_ids) if tcc_ids and random.random() < 0.8 else None
 
     alunos.append({
         "nome": nome,
@@ -203,14 +214,11 @@ for i in range(30):
         "id_tcc": id_tcc
     })
 
-# Inserir dados na tabela 'alunos' do Supabase
+#insere dados na tabela 'alunos' do Supabase
 for aluno in alunos:
     try:
         data, count = supabase.table('alunos').insert(aluno).execute()
         print(f"Aluno inserido: {aluno['nome']} (ra: {aluno['ra']})")
-    # print(
-    #  f"Aluno inserido: {aluno['nome']} (ra: {aluno['ra']}) id_tcc: {aluno['id_tcc']}"
-    # )
     except Exception as e:
         print(f"Erro ao inserir aluno {aluno['nome']}: {e}")
 
@@ -245,22 +253,18 @@ materias = [
     "Mecânica geral", "Topografia", "Economia"
 ]
 
-# Buscar professores existentes
-
+#busca professores existentes
 contador = 0
 for materia in materias:
     try:
         codigo_materia = f"MAT-{contador+1:03d}"  # Ex: MAT-001, MAT-002...
 
-        # Verificar se já existe matéria com mesmo nome
+        #verifica se já existe matéria com mesmo nome
         response = supabase.table('materias').select("codigo_materia").eq(
             'nome_materia', materia).execute()
 
         if len(response.data) == 0:
-            data = {
-                'nome_materia': materia,
-                'codigo_materia': codigo_materia
-            }
+            data = {'nome_materia': materia, 'codigo_materia': codigo_materia}
             supabase.table('materias').insert(data).execute()
 
             print(
@@ -273,48 +277,61 @@ for materia in materias:
     except Exception as e:
         print(f"Erro ao adicionar matéria '{materia}': {e}")
 
-
-
 # DEPARTAMENTOS
 
-# Buscar dados do banco
+#busca dados no supabase
 cursos = supabase.table('curso').select('id_curso').execute().data
-#professores = supabase.table('professor').select('id_professor').execute().data
 materias = supabase.table('materias').select('codigo_materia').execute().data
 
-# Verificar registros existentes
-cursos_ids = [curso["id_curso"] for curso in cursos] if cursos else []
-#professores_ids = [prof["id_professor"] for prof in professores] if professores else []
-materias_codigos = [materia["codigo_materia"] for materia in materias] if materias else []
+#verifica registros existentes
+cursos_ids = []
+if cursos:
+    for curso in cursos:
+        cursos_ids.append(curso["id_curso"])
 
+materias_codigos = [materia["codigo_materia"]
+                    for materia in materias] if materias else []
 
-# Cópia dos IDs para um professor so ser gerente de um departamento
+#copia os IDs para um professor so ser gerente de um departamento
 
-# Atualizar os departamentos com curso, matéria e professor correspondente
+#atualiza os departamentos com curso, matéria e professor correspondente
 for id_departamento in range(1, 11):
     try:
         id_curso_aleatorio = random.choice(cursos_ids)
         codigo_materia_aleatorio = random.choice(materias_codigos)
 
-        professores_response = supabase.table('professor').select('id_professor').eq('id_departamento', id_departamento).execute()
-        professores_do_departamento = [p['id_professor'] for p in professores_response.data]
+        professores_response = supabase.table('professor').select(
+            'id_professor').eq('id_departamento', id_departamento).execute()
+        professores_do_departamento = [
+            p['id_professor'] for p in professores_response.data
+        ]
 
-        # Filtrar para garantir que o professor com ID 0 nunca seja usado
-        professores_validos = [p for p in professores_do_departamento if p != 0]
+        #filtra para garantir que o professor com ID 0 nunca seja usado
+        professores_validos = []
+        for p in professores_do_departamento:
+            if p != 0:
+                professores_validos.append(p)
 
         if not professores_validos:
-            print(f"Nenhum professor válido encontrado para o departamento {id_departamento}")
+            print(
+                f"Nenhum professor válido encontrado para o departamento {id_departamento}"
+            )
             continue
 
         id_professor_escolhido = random.choice(professores_validos)
 
         supabase.table('departamento').update({
-            "id_curso": id_curso_aleatorio,
-            "codigo_materia": codigo_materia_aleatorio,
-            "id_professor": id_professor_escolhido
+            "id_curso":
+            id_curso_aleatorio,
+            "codigo_materia":
+            codigo_materia_aleatorio,
+            "id_professor":
+            id_professor_escolhido
         }).eq("id_departamento", id_departamento).execute()
 
-        print(f"Departamento {id_departamento} atualizado com curso {id_curso_aleatorio}, matéria {codigo_materia_aleatorio} e professor {id_professor_escolhido}")
+        print(
+            f"Departamento {id_departamento} atualizado com curso {id_curso_aleatorio}, matéria {codigo_materia_aleatorio} e professor {id_professor_escolhido}"
+        )
 
     except Exception as e:
         print(f"Erro ao atualizar departamento {id_departamento}: {e}")
@@ -323,17 +340,48 @@ for id_departamento in range(1, 11):
 #buscar dados no supabase
 professores = supabase.table('professor').select('id_professor').execute()
 materias = supabase.table('materias').select('codigo_materia').execute()
-professores_ids = [prof['id_professor'] for prof in professores.data]
-codigo_materia = [materia['codigo_materia'] for materia in materias.data]
+professores_ids = []
+for prof in professores.data:
+    professores_ids.append(prof['id_professor'])
+
+materias_codigos = []
+for materia in materias.data:
+    materias_codigos.append(materia['codigo_materia'])
 
 materias_por_professor = []
 
+for codigo_materia in materias_codigos:
+    id_professor = random.choice(professores_ids)
+    ano = random.randint(1945, datetime.now().year)
+    semestre = random.randint(1, 12)
+    horas_dadas = round(random.uniform(20, 80), 1)
+
+    materias_por_professor.append({
+        "id_professor": id_professor,
+        "codigo_materia": codigo_materia,
+        "ano": ano,
+        "horas_dadas": horas_dadas,
+        "semestre": semestre
+        })
+    
+#inserir na tabela
+for dados in materias_por_professor:
+    try:
+        supabase.table('materias_lecionadas_por_professor').insert(
+            dados).execute()
+        print(f"Dados inseridos: {dados}")
+    except Exception as e:
+
+        print(f"Erro ao inserir dados{dados}: {e}")
+print("Matérias lecionadas adicionadas!")
+
+'''
 for p in range(15):
     id_professor = random.choice(professores_ids)
     codigo_materia = random.choice(materias_codigos)
     ano = random.randint(1945, datetime.now().year)
     semestre = random.randint(1, 12)
-    horas_dadas = round(random.uniform(20, 80), 1)  # de 20 a 80 horas
+    horas_dadas = round(random.uniform(20, 80), 1)  #de 20 a 80 horas
 
     materias_por_professor.append({
         "id_professor": id_professor,
@@ -353,30 +401,37 @@ for dados in materias_por_professor:
         print(f"Erro ao inserir dados {dados}: {e}")
 
 print("Matérias lecionadas adicionadas!")
-
+'''
 #MATRIZ CURRICULAR CURSO
-import random
 
-# buscar dados dos cursos e materias no supabase
+#busca dados dos cursos e materias no supabase
 cursos = supabase.table('curso').select('id_curso').execute()
 materias = supabase.table('materias').select('codigo_materia').execute()
 
 lista_curso = [curso['id_curso'] for curso in cursos.data]
 lista_materia = [materia['codigo_materia'] for materia in materias.data]
 
-# Definir número de semestres por curso
+#define número de semestres por curso
 semestres_por_curso = {
-    "CC": 10, "CD": 10, "AD": 10, "EC": 10, "EA": 10,
-    "EP": 10, "EM": 10, "ER": 10, "EE": 10, "EQ": 10
+    "CC": 10,
+    "CD": 10,
+    "AD": 10,
+    "EC": 10,
+    "EA": 10,
+    "EP": 10,
+    "EM": 10,
+    "ER": 10,
+    "EE": 10,
+    "EQ": 10
 }
 
-# Definir número de matérias por semestre
+#define número de matérias por semestre
 materias_por_semestre = 3
 
-# Escolher 1 matéria comum para todos os cursos
+#escolhe 1 matéria comum para todos os cursos
 materia_comum = random.choice(lista_materia)
 
-# Criando as relações entre curso e matéria
+#cria as relações entre curso e matéria
 matriz_curricular = []
 
 for id_curso in lista_curso:
@@ -384,13 +439,16 @@ for id_curso in lista_curso:
     max_semestre = semestres_por_curso.get(prefixo, 10)
 
     materias_disponiveis = list(lista_materia)
-    materias_disponiveis.remove(materia_comum)  # remove a matéria comum para evitar repetição indevida
+    materias_disponiveis.remove(
+        materia_comum)  #remove a matéria comum para evitar repetição
 
     for semestre in range(1, max_semestre + 1):
         materias_semestre = []
 
         if semestre == 1:
-            materias_semestre.append(materia_comum)  # adiciona matéria comum no 1º semestre
+            materias_semestre.append(
+                materia_comum
+            )  #adiciona matéria comum no 1º semestre (precisa ter materia em cmum por conta da query)
             num_materias_necessarias = materias_por_semestre - 1
         else:
             num_materias_necessarias = materias_por_semestre
@@ -399,15 +457,16 @@ for id_curso in lista_curso:
             print(f"Sem mais matérias disponíveis para o curso {id_curso}.")
             break
 
-        materias_selecionadas = random.sample(materias_disponiveis, num_materias_necessarias)
+        materias_selecionadas = random.sample(materias_disponiveis,
+                                              num_materias_necessarias)
 
-        # remove as matérias escolhidas da lista de disponíveis
+        #remove as matérias escolhidas da lista de disponíveis
         for materia in materias_selecionadas:
             materias_disponiveis.remove(materia)
 
         materias_semestre.extend(materias_selecionadas)
 
-        # inserir no supabase e montar a matriz curricular
+        #insere no supabase e montar a matriz curricular
         for codigo_materia in materias_semestre:
             dado = {
                 "id_curso": id_curso,
@@ -416,59 +475,18 @@ for id_curso in lista_curso:
             }
 
             try:
-                supabase.table('matriz_curricular_curso').insert(dado).execute()
+                supabase.table('matriz_curricular_curso').insert(
+                    dado).execute()
                 print(f"Dados inseridos: {dado}")
             except Exception as e:
-                print(f"Erro ao inserir dados da matriz curricular: {dado}: {e}")
+                print(
+                    f"Erro ao inserir dados da matriz curricular: {dado}: {e}")
 
             matriz_curricular.append(dado)
 
 print("Matriz curricular adicionada com sucesso!")
 
 #HISTORICO ALUNO
-
-# Buscar alunos que já têm histórico
-historico_existente = supabase.table('historico_aluno').select('ra').execute()
-ras_ja_com_historico = set([item['ra'] for item in historico_existente.data])
-
-# Buscar todos os RAs de alunos
-alunos = supabase.table('alunos').select('ra').execute()
-ras = [aluno['ra'] for aluno in alunos.data]
-
-# Buscar códigos das matérias
-materias = supabase.table('materias').select('codigo_materia').execute()
-codigos_materia = [m['codigo_materia'] for m in materias.data]
-
-historicos = []
-contador_inseridos = 0
-contador_pulados = 0
-
-for ra in ras:
-    if ra in ras_ja_com_historico:
-        print(f"RA {ra} já tem histórico")
-        contador_pulados += 1
-        continue
-
-    try:
-        materias_escolhidas = random.sample(codigos_materia, 3)
-        for codigo in materias_escolhidas:
-            historico = {
-                'ra': ra,
-                'codigo_materia': codigo,
-                'nota_aluno': random.randint(0, 10),
-                'semestre': random.randint(1, 10),
-                'ano': random.randint(1945,datetime.now().year)
-            }
-            historicos.append(historico)
-
-        # Inserir histórico no Supabase
-        supabase.table('historico_aluno').insert(historicos).execute()
-        print(f"Histórico inserido com sucesso para RA {ra}!")
-        contador_inseridos += 1
-        historicos = []  # limpa para o próximo aluno
-
-    except Exception as e:
-        print(f"Erro ao inserir histórico para RA {ra}: {e}")
 
 '''
 HISTORICO:
@@ -479,3 +497,76 @@ fazer ter aluno com nota 5: se pessoa ta com nota abaixo da media (5)
 adiciono nova linha no historico com nota > 5 aleatoria, codigo materia = codigo materia anterior, ra igual ra anterior e se semestre for 2, aumento 1 no ano e faco semestre ser 1, se semestre for 1, aumento 1 no semestr ee mantenho ano 
 
 '''
+
+#busca dados no supabase
+alunos = supabase.table('alunos').select('ra').execute()
+ras = [aluno['ra'] for aluno in alunos.data]
+materias = supabase.table('materias').select('codigo_materia').execute()
+codigos_materia = [m['codigo_materia'] for m in materias.data]
+
+#para cada aluno, criar um histórico acadêmico
+for ra in ras:
+    historicos_aluno = []  #lista para armazenar os registros de histórico deste aluno
+
+    ano_ingresso = random.randint(1945, datetime.now().year)  
+    semestre_atual = random.choice([1,2,3])   #escolher aleatoriamente se o aluno ingressou no 1º ou 2º semestre
+
+
+    num_materias = random.randint(20, min(40, len(codigos_materia)))  #escolher aleatoriamente quantas matérias o aluno cursou 
+
+    materias_aleatorias = random.sample(codigos_materia, num_materias)
+
+    for codigo_materia in materias_aleatorias:
+        nota = round(random.uniform(0, 10))
+
+        # Criar registro do histórico
+        historico = {
+            'ra': ra,
+            'codigo_materia': codigo_materia,
+            'nota_aluno': nota,
+            'semestre': semestre_atual,
+            'ano': ano_ingresso
+        }
+        historicos_aluno.append(historico)
+
+        # Se a nota for menor que 5, adicionar uma segunda vez a materia, ra e ano, mas com nota maior que 5
+        if nota < 5:
+            nova_nota = round(random.uniform(5, 10), 1)
+
+            # Ajustar semestre e ano
+            if semestre_atual == 1:
+                novo_semestre = 2
+                novo_ano = ano_ingresso
+            else:
+                novo_semestre = 1
+                novo_ano = ano_ingresso + 1
+
+            # Adicionar registro de recuperação
+            historico_recuperacao = {
+                'ra': ra,
+                'codigo_materia': codigo_materia,
+                'nota_aluno': nova_nota,
+                'semestre': novo_semestre,
+                'ano': novo_ano
+            }
+            historicos_aluno.append(historico_recuperacao)
+
+            # Atualizar semestre e ano para próxima matéria
+            semestre_atual = novo_semestre
+            ano_ingresso = novo_ano
+        else:
+            if semestre_atual == 1:
+                semestre_atual = 2
+            else:
+                semestre_atual = 1
+                ano_ingresso += 1
+
+    #inserir todos os registros
+    try:
+        supabase.table('historico_aluno').insert(historicos_aluno).execute()
+        print(f"  Inseridas {len(historicos_aluno)} matérias para RA {ra}")
+    except Exception as e:
+        print(f"  Erro ao inserir histórico para RA {ra}: {e}")
+
+print("\nInserção de históricos concluído!")
+
