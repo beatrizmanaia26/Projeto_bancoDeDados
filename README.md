@@ -1,17 +1,21 @@
 # Projeto_bancoDeDados
+
 Projeto de Banco de Dados para uma universidade: 
+
 O objetivo deste projeto é implementar um sistema de banco de dados para uma universidade. O sistema deve ser capaz de armazenar e gerenciar informações relacionadas a alunos, professores, departamentos, cursos, disciplinas, históricos escolares de alunos, histórico de disciplinas lecionadas por professores, TCCs apresentados considerando tanto o grupo de alunos como o professor orientador.
 
 Integrantes:
+
 -Beatriz Manaia Lourenço Berto RA: 22.125.060-8
+
 -Laura de Souza Parente RA:22.123.033-7
 
 # Como executar o projeto:
--abre o supabase (https://supabase.com/)e em "SQL Editor" coloque a DDL abaixo, emseguida clique em "run"
+-abre o supabase (https://supabase.com/)e em "SQL Editor" coloque a primeira DDL abaixo, em seguida clique em "run"
 
--após rodar a primeira DDL, no supabase, em "SQL editor" rode a segunda que está logo abxio para fazer o relacionamento de id departamento na tabela professor 
+-após rodar a primeira DDL, no supabase, em "SQL editor" rode a segunda que está logo abaixo para fazer o relacionamento das tabelas que dependem uma da outra (como departamento na tabela professor)
 
--no replit coloque o código commitado nesse projeto para inserir os dados na tabela, antes de rodar, coloque sua supabaseUrl e supabaseKey no código 
+-no replit coloque o código commitado nesse projeto (código esse que serve tanto para: gerar, inserir e validar dados na tabela) antes de rodar, coloque sua supabaseUrl e supabaseKey no código 
 
 -execute as queries abaixo para verificar o funcionamento do projeto
 
