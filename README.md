@@ -178,14 +178,14 @@ values (0, 'Default', 1, 'CC35473');
 --WHERE historico_aluno.ra = '990842947' AND historico_aluno.codigo_materia = 'MAT-001'
 
 SELECT 
-  histRep.ano AS ano_reprovacao,
-  histRep.codigo_materia,
-  histRep.nota_aluno AS nota_reprovacao,
   histRep.ra AS ra_aluno,
+  histRep.codigo_materia,
   histRep.semestre AS semestre_reprovacao,
+  histRep.ano AS ano_reprovacao,
+  histRep.nota_aluno AS nota_reprovacao,
+  histAp.semestre AS semestre_aprovacao,
   histAp.ano AS ano_aprovacao,
-  histAp.nota_aluno AS nota_aprovacao,
-  histAp.semestre AS semestre_aprovacao
+  histAp.nota_aluno AS nota_aprovacao
 FROM historico_aluno histRep
 INNER JOIN historico_aluno histAp ON histRep.ra = histAp.ra --junta td onde todas as condicoes ocorrerem
 AND histRep.codigo_materia = histAp.codigo_materia

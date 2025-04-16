@@ -127,7 +127,7 @@ for curso in cursos:
 
         professores_do_curso = supabase.table('professor').select('id_professor').eq('id_curso', id_curso).execute() #busca todos os professores que estão associados ao curso
 
-        if not professores_do_curso.data:
+        if not professores_do_curso.data: #lista vazia
             print(f"Nenhum professor encontrado para o curso {curso}.")
             continue
 
@@ -137,7 +137,7 @@ for curso in cursos:
             if prof["id_professor"] != 0:
                 professores_validos.append(prof)
 
-        if not professores_validos:
+        if not professores_validos: #lista vazia
             print(f"Sem professor válido para o curso {curso}.")
             continue
 
@@ -191,12 +191,15 @@ tcc_ids = [tcc['id_tcc'] for tcc in tcc_result.data]
 
 alunos = []
 
-for i in range(30):
+for i in range(30): #gera 30 alunos
     nome = faker.name()
     ra = faker.unique.random_int(min=100000000, max=999999999)  #gera um RA único
     id_curso = id_cursos[random.randint(0, len(id_cursos) - 1)]
     #80% de chance de ter um id_tcc, 20% de chance de ser None (tem gente que nao tem tcc pq nao ta pra se formar)
-    id_tcc = random.choice(tcc_ids) if tcc_ids and random.random() < 0.8 else None
+    if tcc_ids and random.random() < 0.8:
+        id_tcc = random.choice(tcc_ids)
+    else:
+        id_tcc = None
 
     alunos.append({
         "nome": nome,
@@ -243,7 +246,7 @@ materias = [
     "Práticas de Inovação1", "Práticas de Inovação2", "Física2", "Física3",
     "Mecânica geral", "Topografia", "Economia"
 ]
-#busca professores existentes
+
 contador = 0
 for materia in materias:
     try:
@@ -304,7 +307,7 @@ for id_departamento in range(1, 11):
             if p != 0:
                 professores_validos.append(p)
 
-        if not professores_validos:
+        if not professores_validos: #lista vazia
             print(
                 f"Nenhum professor válido encontrado para o departamento {id_departamento}"
             )
@@ -329,11 +332,12 @@ print("Departamentos adicionados com sucesso!")
 #buscar dados no supabase
 professores = supabase.table('professor').select('id_professor').execute()
 materias = supabase.table('materias').select('codigo_materia').execute()
-professores_ids = []
+
+professores_ids = [] #lista que guarda id de todos os professores para depois escolher aleatoriamente 
 for prof in professores.data:
     professores_ids.append(prof['id_professor'])
 
-materias_codigos = []
+materias_codigos = [] 
 for materia in materias.data:
     materias_codigos.append(materia['codigo_materia'])
 
@@ -376,18 +380,6 @@ lista_curso = [curso['id_curso'] for curso in cursos.data]
 lista_materia = [materia['codigo_materia'] for materia in materias.data]
 
 #define número de semestres por curso
-semestres_por_curso = {
-    "CC": 10,
-    "CD": 10,
-    "AD": 10,
-    "EC": 10,
-    "EA": 10,
-    "EP": 10,
-    "EM": 10,
-    "ER": 10,
-    "EE": 10,
-    "EQ": 10
-}
 
 materias_por_semestre = 3 #define número de matérias por semestre
 
@@ -397,13 +389,12 @@ matriz_curricular = []#cria as relações entre curso e matéria
 
 for id_curso in lista_curso:
     prefixo = id_curso[:2]
-    max_semestre = semestres_por_curso.get(prefixo, 10)
 
     materias_disponiveis = list(lista_materia)
     materias_disponiveis.remove(
         materia_comum)  #remove a matéria comum para evitar repetição
 
-    for semestre in range(1, max_semestre + 1):
+    for semestre in range(1, 10):
         materias_semestre = []
 
         if semestre == 1:
@@ -524,7 +515,7 @@ for ra in ras:
     #inserir todos os registros
     try:
         supabase.table('historico_aluno').insert(historicos_aluno).execute()
-        print(f"histórico do aluno {ra['ra']} adicionado com sucesso!")
+        print(f"histórico do aluno {ra} adicionado com sucesso!")
     except Exception as e:
         print(f"Erro ao inserir histórico para RA {ra}: {e}")
 
