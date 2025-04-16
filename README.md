@@ -160,6 +160,10 @@ insert into professor (id_professor, nome_professor, id_departamento, id_curso)
 values (0, 'Default', 1, 'CC35473');
 
 ```
+
+## QUERIES: 
+
+
 ```sql
 --1) Mostre todo o histórico escolar de um aluno que teve reprovação em uma disciplina, retornando inclusive a reprovação em um semestre e a aprovação no semestre seguinte;
 
