@@ -275,8 +275,14 @@ SELECT
   COALESCE(departamento.nome, 'nenhum') AS departamento, --coalesce, se tiver o primeiro ele retorna o primeiro, se nao ele retorna o segundo do ()
   COALESCE(curso.nome_curso, 'nenhum') AS curso --depois do AS fica o nome dado para a coluna
 FROM departamento
-LEFT JOIN professor ON professor.id_professor = departamento.id_professor
-LEFT JOIN curso ON curso.id_curso = professor.id_curso;
+LEFT JOIN professor ON professor.id_professor = departamento.id_professor --só tras professores que estao no departamento ou seja sao chefes de departamento
+LEFT JOIN curso ON curso.id_curso = professor.id_curso;--só tras professores que estao no curso ou seja sao chefes de curso
+
+--ex: SELECT *
+--FROM professor
+--LEFT JOIN departamento ON professor.id_professor = departamento.id_professor;
+--Você está dizendo:
+--"Traga todos os professores. E para cada professor, traga os dados do departamento se ele estiver associado a algum departamento."
 
 --6) Encontre os nomes de todos os estudantes.
 
